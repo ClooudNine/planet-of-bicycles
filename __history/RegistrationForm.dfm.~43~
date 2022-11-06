@@ -1,0 +1,174 @@
+object Reg: TReg
+  Left = 0
+  Top = 0
+  Caption = #1040#1074#1090#1086#1088#1080#1079#1072#1094#1080#1103
+  ClientHeight = 633
+  ClientWidth = 1053
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  Menu = MainMenuReg
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  PixelsPerInch = 96
+  TextHeight = 13
+  object RegBg: TImage
+    Left = 0
+    Top = 0
+    Width = 1053
+    Height = 633
+    Align = alClient
+    AutoSize = True
+    ExplicitLeft = -24
+  end
+  object Title: TLabel
+    Left = 64
+    Top = 24
+    Width = 20
+    Height = 13
+    Caption = 'Title'
+  end
+  object NameLabel: TLabel
+    Left = 117
+    Top = 228
+    Width = 52
+    Height = 13
+    Caption = 'NameLabel'
+  end
+  object SurnameLabel: TLabel
+    Left = 117
+    Top = 275
+    Width = 67
+    Height = 13
+    Caption = 'SurnameLabel'
+  end
+  object RegButton: TImage
+    Left = 616
+    Top = 400
+    Width = 105
+    Height = 105
+    AutoSize = True
+    OnClick = RegButtonClick
+  end
+  object AuthImg: TImage
+    Left = 64
+    Top = 216
+    Width = 105
+    Height = 105
+    OnClick = AuthImgClick
+  end
+  object RegImg: TImage
+    Left = 616
+    Top = 216
+    Width = 105
+    Height = 105
+    AutoSize = True
+    OnClick = RegImgClick
+  end
+  object Title2: TLabel
+    Left = 304
+    Top = 48
+    Width = 26
+    Height = 13
+    Caption = 'Title2'
+  end
+  object PassLabel: TLabel
+    Left = 445
+    Top = 228
+    Width = 47
+    Height = 13
+    Caption = 'PassLabel'
+  end
+  object ConfrimPassLabel: TLabel
+    Left = 445
+    Top = 275
+    Width = 84
+    Height = 13
+    Caption = 'ConfrimPassLabel'
+  end
+  object LoginLabel: TLabel
+    Left = 117
+    Top = 184
+    Width = 50
+    Height = 13
+    Caption = 'LoginLabel'
+  end
+  object AuthButton: TImage
+    Left = 616
+    Top = 400
+    Width = 105
+    Height = 105
+    AutoSize = True
+    OnClick = AuthButtonClick
+  end
+  object Name: TEdit
+    Left = 264
+    Top = 225
+    Width = 153
+    Height = 21
+    TabOrder = 0
+  end
+  object Surname: TEdit
+    Left = 264
+    Top = 272
+    Width = 153
+    Height = 21
+    TabOrder = 1
+  end
+  object Pass: TEdit
+    Left = 667
+    Top = 229
+    Width = 206
+    Height = 21
+    PasswordChar = '*'
+    TabOrder = 2
+  end
+  object ConfrimPass: TEdit
+    Left = 667
+    Top = 275
+    Width = 206
+    Height = 21
+    PasswordChar = '*'
+    TabOrder = 3
+  end
+  object Login: TEdit
+    Left = 264
+    Top = 181
+    Width = 153
+    Height = 21
+    TabOrder = 4
+  end
+  object VeloLandDatabase: TADOConnection
+    LoginPrompt = False
+    Provider = 'MSDASQL.1'
+    Left = 8
+    Top = 80
+  end
+  object VeloLandUsers: TADOTable
+    Connection = VeloLandDatabase
+    TableName = 'Users'
+    Left = 8
+    Top = 136
+  end
+  object MainMenuReg: TMainMenu
+    Left = 8
+    Top = 8
+    object N1: TMenuItem
+      Caption = #1055#1086#1084#1086#1097#1100
+      object N2: TMenuItem
+        Caption = #1057#1087#1088#1072#1074#1082#1072
+        ShortCut = 112
+        OnClick = N2Click
+      end
+      object N3: TMenuItem
+        Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077
+        ShortCut = 113
+        OnClick = N3Click
+      end
+    end
+  end
+end

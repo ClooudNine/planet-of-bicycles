@@ -1,0 +1,36 @@
+unit AboutDeveloper;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls;
+
+type
+  TADeveloper = class(TForm)
+    Developer: TImage;
+    AboutText: TLabel;
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  ADeveloper: TADeveloper;
+
+implementation
+
+{$R *.dfm}
+
+procedure TADeveloper.FormCreate(Sender: TObject);
+begin
+Developer.Picture.LoadFromFile('resources/AboutDeveloper.jpg');
+Developer.AutoSize := True;
+AboutText.Font.Name := 'Minecraft Rus Regular';
+AboutText.Font.Size := 12;
+AboutText.Caption := 'Разработчик приложения: Сырель Владислав, обучается в Гродненском государственном политехническом колледже на специальности "Программное обеспечение' + #13#10 + 'информационных технологий" по специализации "Программное обеспечение обработки экономической и деловой информации".' + #13#10 + ' Имеет опыт разработки на стеке Frontend - технологий (HTML, CSS, JavaScript, React). Разработанные проекты: 2048. В планах разработка большого сайта по игре "Genshin Impact".' + #13#10 + 'Любит велосипеды за их скорость и свободу передвижения, мечтает полностью в них разбираться и уметь чинить всё сам.'
+end;
+
+end.

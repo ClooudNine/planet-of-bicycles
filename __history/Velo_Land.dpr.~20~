@@ -1,0 +1,38 @@
+program Velo_Land;
+
+
+
+uses
+  Vcl.Forms,
+  Main in 'Main.pas' {MainForm},
+  Vcl.Themes,
+  Vcl.Styles,
+  LoadScr in 'LoadScr.pas' {LoadScreen},
+  BicycleDevice in 'BicycleDevice.pas' {Device},
+  BicyclesTypes in 'BicyclesTypes.pas' {Types},
+  BicyclesTricks in 'BicyclesTricks.pas' {Tricks},
+  Hrodna_Routes in 'Hrodna_Routes.pas' {Routes},
+  RegistrationForm in 'RegistrationForm.pas' {Reg},
+  DeviceTest in 'DeviceTest.pas' {Form1};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  LoadScreen := TLoadScreen.Create(Application);
+  LoadScreen.Show;
+  LoadScreen.Update;
+  while LoadScreen.LoadTimer.Enabled do
+    Application.ProcessMessages;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TReg, Reg);
+  Application.CreateForm(TMainForm, MainForm);
+  Application.CreateForm(TDevice, Device);
+  Application.CreateForm(TTypes, Types);
+  Application.CreateForm(TTricks, Tricks);
+  Application.CreateForm(TRoutes, Routes);
+  Application.CreateForm(TForm1, Form1);
+  LoadScreen.Hide;
+  LoadScreen.Free;
+  Application.Run;
+end.

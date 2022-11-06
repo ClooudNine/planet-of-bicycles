@@ -1,0 +1,53 @@
+unit Maze;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls;
+
+type
+  TForm2 = class(TForm)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+  type Location=record
+    left_wall,up_wall:Boolean;
+    end;
+  type Maze=array of array of Location;
+
+var
+  Form2: TForm2;
+  Laberint:Maze;
+  CellSize:Byte=15;
+implementation
+
+{$R *.dfm}
+
+procedure LoadMaze(var TheMaze : Maze; Name : string);  //загрузить лабиринт
+var
+  Height, Width:Integer;//высота и ширина лабиринта
+  x,y:Integer;//текущая локация
+  lw,uw:Integer; //временные переменные
+begin
+
+  SetLength(TheMaze,Width+1,Height+1);//изменить размер лабиринта
+for y:=0 to Height do //цикл по всем локациям
+    for x:=0 to Width do
+    if (y=Height)or(x=Width) then //если локация-служебная
+    begin
+      TheMaze[x,y].left_wall := true;   //обе стены существуют
+      TheMaze[x, y].up_wall := true;
+	end
+     else
+	       begin //иначе считываем
+         ReadLn(f, uw, lw); // из файла
+         TheMaze[x, y].left_wall := Boolean(lw);//прочитанное целое
+         TheMaze[x, y].up_wall := Boolean(uw);//число надо привести
+         end; //к типу Boolean
+     CloseFile(f);
+     end; //закрыть файл
+
+end.

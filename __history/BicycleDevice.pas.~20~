@@ -1,0 +1,49 @@
+unit BicycleDevice;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.OleCtrls, SHDocVw,
+  Vcl.StdCtrls;
+
+type
+  TDevice = class(TForm)
+    Page: TWebBrowser;
+    Label1: TLabel;
+    Label2: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure PageNavigateComplete2(ASender: TObject; const pDisp: IDispatch;
+      const URL: OleVariant);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Device: TDevice;
+
+implementation
+
+{$R *.dfm}
+
+uses Main;
+
+procedure TDevice.FormCreate(Sender: TObject);
+begin
+Page.Navigate('file://resources/html_pages/bicycle_device/bicycle_device.html');
+
+end;
+
+
+procedure TDevice.PageNavigateComplete2(ASender: TObject;
+  const pDisp: IDispatch; const URL: OleVariant);
+begin
+Label1.Caption := URL;
+Label2.Caption := 'file://' + ExtractFilePath(paramstr(0))+'resources/html_pages/bicycle_device/bicycle_device.html#closeform';
+if URL = 'file://' + ExtractFilePath(paramstr(0))+'resources/html_pages/bicycle_device/bicycle_device.html#closeform'  then
+  Device.Close;
+end;
+
+end.

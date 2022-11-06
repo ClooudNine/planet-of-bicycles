@@ -1,0 +1,306 @@
+@font-face {
+    font-family: "Minecraft Font";
+    src: url("minecraft.ttf");
+}
+
+body {
+    background-image: url("trick_bg.jpg");
+}
+
+a {
+    text-decoration: none;
+}
+
+#title {
+    text-align: center;
+    font-family: "Minecraft Font";
+    font-size: 48px;
+    animation: title 10s infinite;
+}
+
+#introduction {
+    text-align: center;
+    font-family: 'Minecraft Font';
+    font-size: 24px;
+    font-style: italic;
+    color: #50fa75;
+}
+
+#tricks_button {
+    position: absolute;
+    width: 99%;
+    margin-top: 9%;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+}
+
+.modal:target {
+    opacity: 1;
+    pointer-events: auto;
+    overflow-y: auto;
+}
+
+.modal-dialog {
+    position: relative;
+    width: 90%;
+    margin: 10px;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        margin: 30px auto;
+    }
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: .3rem;
+    outline: 0;
+}
+
+@media (min-width: 768px) {
+    .modal-content {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid #eceeef;
+}
+
+.modal-title {
+    font-family: 'Minecraft Font';
+    margin: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.close {
+    float: right;
+    font-family: sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    text-decoration: none;
+}
+
+.close:focus,
+.close:hover {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: .75;
+}
+
+.modal-body {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding: 15px;
+    overflow: auto;
+}
+
+.texts {
+    width: 45%;
+    font-family: Arial;
+    font-size: 20px;
+}
+
+.images img {
+    border-radius: 20px;
+    width: 100%;
+    height: 80%;
+}
+
+.images video {
+    border-radius: 20px;
+    width: 100%;
+    height: 100%;
+}
+
+.images {
+    width: 55%;
+}
+
+.btn {
+    width: 100%;
+    height: 100%;
+    font-family: 'Minecraft Font';
+    font-size: 32px;
+    cursor: pointer;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: blue;
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+}
+
+.btn:hover {
+    background-position: right center;
+}
+
+.btn-2 {
+    background-image: linear-gradient(to right, #fbc2eb 0%, #a6c1ee 51%, #fbc2eb 100%);
+}
+
+.buttons {
+    position: absolute;
+    width: 99%;
+    height: 9%;
+}
+
+.header img {
+    height: 110px;
+}
+
+.header p {
+    font-family: Arial;
+    font-size: 25px;
+    color: #9dff00;
+}
+
+.header {
+    display: flex;
+    border: 10px solid orange;
+    border-radius: 20px;
+    margin: auto;
+    width: 70%;
+}
+
+#bmx {
+    visibility: hidden;
+}
+
+#bmx:target {
+    visibility: visible;
+}
+
+#mountain {
+    visibility: hidden;
+}
+
+#mountain:target {
+    visibility: visible;
+}
+
+
+.btn-grad {
+    font-family: 'Minecraft Font';
+    font-size: 32px;
+    background-image: linear-gradient(to right, #DA22FF 0%, #9733EE 51%, #DA22FF 100%);
+    margin: 10px;
+    padding: 15px 45px;
+    width: 99%;
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+    display: block;
+}
+
+.btn-grad:hover {
+    background-position: right center;
+    color: #fff;
+    text-decoration: none;
+}
+
+
+#closeform {
+    background-image: url('return_button.png');
+    background-color: Transparent;
+    background-repeat: no-repeat;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    position: absolute;
+    top: 85%;
+    left: 35%;
+    width: 500px;
+    height: 144px;
+}
+
+#closeformtext {
+    font-family: 'Minecraft Font';
+    font-size: 36px;
+    position: absolute;
+    top: 1%;
+    bottom: 5%;
+    right: 32%;
+}
+
+@keyframes title {
+    0% {
+        color: #ff0000;
+    }
+
+    10% {
+        color: #ff8000;
+    }
+
+    20% {
+        color: #ffff00;
+    }
+
+    30% {
+        color: #80ff00;
+    }
+
+    40% {
+        color: #00ff00;
+    }
+
+    50% {
+        color: #00ff80;
+    }
+
+    60% {
+        color: #00ffff;
+    }
+
+    70% {
+        color: #0080ff;
+    }
+
+    80% {
+        color: #0000ff;
+    }
+
+    90% {
+        color: #8000ff;
+    }
+
+    100% {
+        color: #ff0080;
+    }
+}

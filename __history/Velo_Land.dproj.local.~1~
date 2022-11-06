@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.743,=D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.424,=D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.736,D:\ГГПК\ОАиП\Планета велосипедов\Main.pas=D:\ГГПК\ОАиП\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.663,=D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.139,D:\ГГПК\ОАиП\Планета велосипедов2\Планета велосипедов\Velo_Land.dproj=D:\ГГПК\ОАиП\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.630,D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\BicycleDevice.dfm=D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Unit2.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.630,D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\BicycleDevice.pas=D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.375,=D:\ГГПК\ОАиП\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.736,D:\ГГПК\ОАиП\Планета велосипедов\Main.dfm=D:\ГГПК\ОАиП\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.667,D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Maze.pas=D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.667,D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Maze.dfm=D:\ГГПК\ОАиП\Планета велосипедов\Планета велосипедов\Unit2.dfm</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="BicycleDevice.pas"/>
+    <File Path="BicycleDevice.dfm"/>
+    <File Path="Main.pas"/>
+    <File Path="Main.dfm"/>
+    <File Path="Maze.pas"/>
+    <File Path="Maze.dfm"/>
+    <File Path="Unit1.pas"/>
+    <File Path="Unit1.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>

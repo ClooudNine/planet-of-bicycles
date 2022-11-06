@@ -1,0 +1,46 @@
+unit Hrodna_Routes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.OleCtrls, SHDocVw;
+
+type
+  TRoutes = class(TForm)
+    Page4: TWebBrowser;
+    procedure FormActivate(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure Page4BeforeScriptExecute(ASender: TObject;
+      const pDispWindow: IDispatch);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Routes: TRoutes;
+
+implementation
+
+{$R *.dfm}
+
+procedure TRoutes.FormActivate(Sender: TObject);
+begin
+Page4.Navigate('file://' + ExtractFilePath(paramstr(0)) +'resources/html_pages/Hrodna_routes/Hrodna_routes.html');
+end;
+
+procedure TRoutes.FormCreate(Sender: TObject);
+begin
+Routes.WindowState := wsMaximized;
+Page4.Navigate('file://' + ExtractFilePath(paramstr(0)) +'resources/html_pages/Hrodna_routes/Hrodna_routes.html');
+end;
+
+procedure TRoutes.Page4BeforeScriptExecute(ASender: TObject;
+  const pDispWindow: IDispatch);
+begin
+Routes.Close;
+end;
+
+end.

@@ -1,0 +1,284 @@
+unit Maze;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls;
+
+type
+  TMazeBicycle = class(TForm)
+    BackBuffer: TImage;
+    Button1: TButton;
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+  type Location=record
+    left_wall,up_wall:Boolean;
+    end;
+  type MazeBike=array of array of Location;
+
+var
+  MazeBicycle: TMazeBicycle;
+  Laberint:MazeBike;
+  CellSize:Byte=15;
+implementation
+
+{$R *.dfm}
+
+uses Main;
+
+procedure ShowMaze(TheMaze : MazeBike); { нарисовать лабиринт }
+
+    var x, y : Integer;
+      Height, Width : Integer; { высота и ширина лабиринта }
+  begin
+    Width := High(TheMaze); { определить высоту и ширину }
+    Height := High(TheMaze[0]);
+
+MazeBicycle.BackBuffer.Width:=(Width+1)*CellSize;
+MazeBicycle.BackBuffer.Height:=(Height+1)*CellSize;
+
+MazeBicycle.BackBuffer.Picture.Bitmap.Width:=MazeBicycle.BackBuffer.Width;
+MazeBicycle.BackBuffer.Picture.Bitmap.Height:=MazeBicycle.BackBuffer.Height;
+
+with MazeBicycle.BackBuffer.Canvas do
+begin { очистка буфера }
+FillRect(Rect(0, 0, MazeBicycle.BackBuffer.Width, MazeBicycle.BackBuffer.Height));
+for x := 0 to Width - 1 do
+for y := 0 to Height - 1 do
+begin
+{ если в локации есть верхняя стена }
+if TheMaze[x, y].up_wall then
+begin
+MoveTo(x * CellSize, y * CellSize); { рисуем ее }
+LineTo((x + 1) * CellSize, y * CellSize);
+end;
+
+{ если в локации есть левая стена }
+
+if (x<>0) or ((x=0) and (y<>0))  then
+if TheMaze[x, y].left_wall then
+begin
+MoveTo(x * CellSize, y * CellSize); { рисуем и ее }
+LineTo(x * CellSize, (y + 1) * CellSize);
+end;
+end;
+MoveTo(0, Height * CellSize); { рисуем стену снизу и }
+
+LineTo(Width * CellSize, (Height) * CellSize); { справа от лабиринта }
+MoveTo(Width * CellSize,  (Height-1) * CellSize);
+LineTo(Width * CellSize, 0);
+
+  { отобразить результат на основном экране }
+
+{MazeBicycle.Screen.Canvas.CopyRect(Rect(0, 0, MazeBicycle.Screen.Width,
+MazeBicycle.Screen.Height), MazeBicycle.Image2.Canvas,
+Rect(0, 0, MazeBicycle.Screen.Width, MazeBicycle.Screen.Height));}
+end;
+end;
+
+function WaveTracingSolve(TheMaze : MazeBike; xs, ys, xf, yf : Integer):boolean;
+    var Mark : array of array of Integer; { метки локаций }
+    x, y, xc, yc : Integer;
+    N, i : Integer;
+    Height, Width : Integer;
+    const dx : array[1..4] of Integer = (1, 0, -1, 0); { смещения }
+    dy : array[1..4] of Integer = (0, -1, 0, 1);
+    { neo?aaiay ooieoey: ii?aaaeyao, ii?ii ee i?ieoe ec eieaoee
+    (x, y) в локацию (x + dx, y + dy), то есть нет ли между ними стены }
+    function CanGo(x, y, dx, dy : Integer) : Boolean;
+
+    begin
+    if dx = -1 then CanGo := not TheMaze[x, y].left_wall
+    else if dx = 1 then CanGo := not TheMaze[x + 1, y].left_wall
+    else if dy = -1 then CanGo := not TheMaze[x, y].up_wall
+    else CanGo := not TheMaze[x, y + 1].up_wall;
+    end;
+
+    function Solve : Boolean; { поиск решения }
+    var i, N, x, y : Integer;
+    NoSolution : Boolean;
+    begin
+    N := 1; { начинаем с итерации номер 1 }
+
+    repeat
+    NoSolution := true; { пессимистично полагаем, что решения нет }
+    for x := 0 to Width - 1 do
+    for y := 0 to Height - 1 do
+    if Mark[x, y] = N then { найти локации, помеченные числом N }
+    for i := 1 to 4 do { просмотр соседних локаций }
+    if CanGo(x, y, dx[i], dy[i]) and
+    (Mark[x + dx[i], y + dy[i]] = 0) then
+    begin { локация доступна и помечена нулем }
+    NoSolution := false; { есть шанс найти
+    решение }
+    { помечаем соседнюю локацию числом N +
+    1 }
+    Mark[x + dx[i], y + dy[i]] := N + 1;
+    if (x + dx[i] = xf) and (y + dy[i] = yf) then
+    begin
+    Solve := true; { дошли до финишной
+    локации }
+    Exit; { конец алгоритма }
+    end;
+    end;
+    N := N + 1; { переход к следующей итерации }
+    until NoSolution; { повторять, если есть надежда найти решение }
+    Solve := false; { нет, решение не найдено }
+    end;
+
+    begin
+        result:=false;
+    Width := High(TheMaze);
+    Height := High(TheMaze[0]);
+    SetLength(Mark, Width, Height); { выделение памяти для пометок }
+
+    for x := 0 to Width - 1 do { изначально все заполняется нулями }
+    for y := 0 to Height - 1 do
+    Mark[x, y] := 0;
+
+    Mark[xs, ys] := 1; { стартовой локации соответствует единица }
+    if Solve then { если найдено решение, рисуем его }
+    begin
+        result:=true;
+    x := xf; y := yf;
+    MazeBicycle.BackBuffer.Canvas.brush.Color:=clblue;
+    for N := Mark[xf, yf] downto 1 do
+    begin
+
+    { рисуем окружность на очередной локации маршрута }
+    xc := CellSize * (2 * x + 1) div 2;
+    yc := CellSize * (2 * y + 1) div 2;
+    MazeBicycle.BackBuffer.Canvas.Ellipse(xc - 5, yc - 5, xc + 5, yc + 5);
+
+    for i := 1 to 4 do
+    if CanGo(x, y, dx[i], dy[i]) and
+    (Mark[x + dx[i], y + dy[i]] = N - 1) then
+    begin
+    x := x + dx[i]; { ищем следующую локацию
+    маршрута }
+    y := y + dy[i];
+
+    Break;
+    end;
+
+
+    end;
+    MazeBicycle.BackBuffer.Canvas.brush.Color:=clwhite;
+    end;
+    end;
+
+function KruskalGenerateMaze(Width, Height : Integer) : MazeBike;
+
+    type Wall = record { тип "стена" }
+    x, y, dx, dy : Integer;
+    end;
+    var TheMaze : MazeBike; { сам лабиринт }
+    Walls : array of Wall; { массив стен }
+    Temp : array of Real; { временный массив для сортировки стен }
+    i, j : Integer;
+    tempw : Wall;
+    tempr : Real;
+    CurWall : Wall;
+    locations : Integer;
+    counter : Integer;
+
+    procedure BreakWall(x, y, dx, dy : Integer); { разрушить стену }
+    begin
+    { между локациями }
+    if dx = -1 then TheMaze[x, y].left_wall := false
+    else if dx = 1 then TheMaze[x + 1, y].left_wall := false
+    else if dy = -1 then TheMaze[x, y].up_wall := false
+    else TheMaze[x, y + 1].up_wall := false;
+    end;
+
+function IsConnected(xs,ys,xf,yf:Integer):Boolean;
+//...{используется алгоритм волновой трассировки}
+
+begin
+try
+ result:=WaveTracingSolve(TheMaze,xs,ys,xf,yf);
+ except
+         Showmessage(inttostr(xs));
+ end;
+END;
+
+    begin
+    { выделение памяти для массива стен }
+    { в лабиринте Width * Height изначально
+    { (Width - 1) * Height + (Height - 1) * Width стен }
+    SetLength(Walls, (Width - 1) * Height + (Height - 1) * Width);
+    SetLength(Temp, (Width - 1) * Height + (Height - 1) * Width);
+    SetLength(TheMaze, Width + 1, Height + 1); { указать размер лабиринта }
+
+    for i := 0 to Width do { все стены изначально }
+    for j := 0 to Height do { существуют }
+    begin
+    TheMaze[i, j].left_wall := true;
+    TheMaze[i, j].up_wall := true;
+    end;
+
+    Randomize;
+    for i := 0 to (Width - 1) * Height + (Height - 1) * Width - 1 do
+    Temp[i] := Random; { заполнение массива Temp случайными числами }
+
+    counter := 0; { заполнение массива стен }
+    for i := 1 to Width - 1 do
+    for j := 0 to Height - 1 do
+    begin { сначала все горизонтальные }
+    Walls[counter].x := i; Walls[counter].y := j;
+    Walls[counter].dx := -1; Walls[counter].dy := 0;
+    counter := counter + 1;
+    end;
+    for i := 0 to Width - 1 do
+    for j := 1 to Height - 1 do
+    begin { затем все вертикальные }
+    Walls[counter].x := i; Walls[counter].y := j;
+    Walls[counter].dx := 0; Walls[counter].dy := -1;
+    counter := counter + 1;
+    end;
+
+    for i := 0 to (Width - 1) * Height + (Height - 1) * Width - 1 do
+    for j := i to (Width - 1) * Height + (Height - 1) * Width - 1 do
+    if Temp[i] > Temp[j] then { перемешиваем массив стен }
+    begin
+    tempr := Temp[i]; Temp[i] := Temp[j]; Temp[j] := tempr;
+    tempw := Walls[i]; Walls[i] := Walls[j]; Walls[j] := tempw;
+    end;
+
+    locations := Width * Height;
+    i := 0;
+    while locations > 1 do { прямолинейная реализация }
+    begin { алгоритма Краскала }
+    CurWall := Walls[i];
+    i := i + 1;
+    if not IsConnected(CurWall.x, CurWall.y,
+    CurWall.x + CurWall.dx, CurWall.y + CurWall.dy) then
+    begin
+    BreakWall(CurWall.x, CurWall.y, CurWall.dx, CurWall.dy);
+    locations := locations - 1;
+    ShowMaze(TheMaze);
+    Application.ProcessMessages;
+    end;
+    end;
+
+    KruskalGenerateMaze := TheMaze;
+    end;
+
+procedure TMazeBicycle.Button1Click(Sender: TObject);
+begin
+Laberint:=KruskalGenerateMaze(25,25);
+ShowMaze(Laberint);
+end;
+
+procedure TMazeBicycle.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+MainMenu.Show;
+end;
+
+end.

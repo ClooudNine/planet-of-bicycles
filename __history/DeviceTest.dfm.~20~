@@ -1,0 +1,29 @@
+object DeviceT: TDeviceT
+  Left = 0
+  Top = 0
+  Caption = 'DeviceT'
+  ClientHeight = 693
+  ClientWidth = 1202
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object DeviceTBg: TImage
+    Left = 0
+    Top = 0
+    Width = 1202
+    Height = 693
+    Align = alClient
+    AutoSize = True
+    ExplicitLeft = 424
+    ExplicitTop = 256
+    ExplicitWidth = 105
+    ExplicitHeight = 105
+  end
+end

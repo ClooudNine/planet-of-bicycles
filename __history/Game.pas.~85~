@@ -1,0 +1,568 @@
+unit Game;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ExtCtrls, Vcl.StdCtrls, ShellAPI;
+
+type
+  TPicturesGame = class(TForm)
+    Update: TTimer;
+    GameBg: TImage;
+    LevelOneButton: TImage;
+    LevelTwoButton: TImage;
+    LevelThreeButton: TImage;
+    LevelFourButton: TImage;
+    Field: TPaintBox;
+    Timer: TTimer;
+    Time: TLabel;
+    MoveCounter: TLabel;
+    BackToMainMenu: TImage;
+    MainMenuGame: TMainMenu;
+    N1: TMenuItem;
+    Help: TMenuItem;
+    AboutProgr: TMenuItem;
+    Title: TLabel;
+    TitleColor: TTimer;
+    procedure FormCreate(Sender: TObject);
+    procedure UpdateTimer(Sender: TObject);
+    procedure LevelOneButtonClick(Sender: TObject);
+    procedure FieldPaint(Sender: TObject);
+    procedure FieldMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure LevelTwoButtonClick(Sender: TObject);
+    procedure LevelThreeButtonClick(Sender: TObject);
+    procedure LevelFourButtonClick(Sender: TObject);
+    procedure TimerTimer(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure BackToMainMenuClick(Sender: TObject);
+    procedure HelpClick(Sender: TObject);
+    procedure AboutProgrClick(Sender: TObject);
+    procedure TitleColorTimer(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+ // объявление нового типа col_row
+  col_row = record
+    col: integer;
+    row: integer;
+  end;
+
+const
+
+
+  MAX_SIZE = 32; // максимальное кол-во парных картинок
+  MAX_H = 8;     // максимальный размер поля - 8х8
+  MAX_W = 8;
+
+var
+  PicturesGame: TPicturesGame;
+
+  Pole: array [1..MAX_H,1..MAX_W] of integer;
+  { Pole[i,j] < 100 - код картинки, клетка закрыта;
+    Pole[i,j] > 100 и < 200 - клетка открыта, т.е. игрок видит картинку;
+    Pole[i,j] > 200 - игрок нашел пару для этой картинки }
+
+  Pictures: TBitmap;    // картинки, загруженные из файла
+
+  n : integer;     // колво открытых пар картинок
+  count: integer;  // количества открытых в данный момент клеток
+  open1: col_row;  // координаты 1-й открытой клетки
+  open2: col_row;  // координаты 2-й открытой клетки
+
+  W: integer;    // кол-во клеток по горизонтали
+  H: integer;    // кол-во клеток по вертикали
+            // произведение W и H должно быть кратно 2-м
+  WK: integer;  // ширина клетки
+  HK: integer;  // высота клетки
+  i: integer;
+  Moves: integer;
+  SetLevel: string;
+
+
+implementation
+
+{$R *.dfm}
+
+uses RegistrationForm, Main, AboutProgram;
+
+// рисует клетку поля
+procedure Kletka(col,row: integer);
+var
+  x,y: integer;     // левый верхний угол клетки (координаты)
+  src, dst : Trect; // источник и получатель битового образа
+
+begin
+  // преобразуем координаты клетки
+  // в координаты на поверхности формы
+  x := (col-1)*WK;
+  y := (row-1)*HK;
+
+
+  if Pole[col,row] > 200 then
+   // для этой клетки найдена пара
+   // клетку надо убрать с поля
+   begin
+      // установить цвет границы, закраски и текста
+      PicturesGame.Field.Canvas.Brush.Color := clGreen;
+      PicturesGame.Field.Canvas.Pen.Color := clGreen;
+      PicturesGame.Field.Canvas.Font.Color := clGreen;
+    end;
+
+
+  if (Pole[col,row] > 100) and (Pole[col,row] < 200)
+   then
+       // клетка открыта - вывести картинку
+       begin
+
+      // Pole[col,row] = номер картинки + 100,
+      // где 100 - признак того, что клетка открыта
+      // определим положение картинки в Pictures
+      src := Bounds((Pole[col,row]-100 -1 )*WK,0,WK,HK);
+
+      // координаты картинки (клетки) на форме
+      dst := Bounds(x,y,HK-2,WK-2);
+
+      // вывести картинку в клетку
+      PicturesGame.Field.Canvas.CopyRect(dst,Pictures.Canvas,src);
+
+      // установить цвет границы и цифры
+      PicturesGame.Field.Canvas.Pen.Color := clBlack;
+      PicturesGame.Field.Canvas.Font.Color := clBlack;
+      PicturesGame.Field.Canvas.Brush.Style := bsClear;
+  end;
+
+
+  if (Pole[col,row] > 0) and (Pole[col,row] < 100) then
+    // клетка закрыта, рисуем только контур
+    begin
+      PicturesGame.Field.Canvas.Brush.Color := clBtnFace;
+      PicturesGame.Field.Canvas.Pen.Color := clBlack;
+      PicturesGame.Field.Canvas.Font.Color := clBtnFace;
+    end;
+
+  // отрисовать клетку
+  PicturesGame.Field.Canvas.Rectangle(x,y,x+WK-2,y+HK-2);
+  PicturesGame.Field.Canvas.Brush.Color := clBtnFace;
+
+end;
+
+// отрисовывает поле
+procedure ShowPole;
+var
+   row,col: integer;
+begin
+   for row:=1 to H do
+      for col:=1 to W do
+           Kletka(row,col);
+end;
+
+// новая игра
+Procedure NewGame;
+var
+
+  k: integer;       // кол-во парных картинок
+  r: integer;       // случайное число
+  buf: array[1..MAX_SIZE] of integer;
+  // в buf[i] записываем, сколько чисел i
+  // записали в массив Pole
+  i,j: integer; // индексы массивов
+begin
+  Randomize;
+  k := Trunc(H*W/2);
+
+  for i:=1 to k do
+      buf[i] := 0;
+
+  // запишем в массив Pole случайные числа
+  // от 1 до 2
+  // каждое число должно быть записано два раза
+  for i:=1 to H do
+    for j:=1 to W do
+      begin
+        repeat
+          r := random (k) + 1;
+        until buf[r] < 2;
+        Pole[i,j] := r;   // код картинки
+        inc(buf[r]);
+      end;
+   // здесь поле сгенерировано
+   n:=0;
+   ShowPole;
+end;
+
+procedure TPicturesGame.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+Timer.Enabled := False;
+Time.Visible := False;
+Field.Visible := False;
+LevelOneButton.Visible := True;
+LevelTwoButton.Visible := True;
+LevelThreeButton.Visible := True;
+LevelFourButton.Visible := True;
+Title.Visible := True;
+MoveCounter.Visible := False;
+BackToMainMenu.Left := 700;
+Reg.VeloLandUsers.Edit;
+SetLevel := '';
+Reg.VeloLandUsers.FieldByName('UserScore').AsInteger := Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger
++ Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger
++ Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger
++ Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger;
+end;
+
+procedure TPicturesGame.FormCreate(Sender: TObject);
+begin
+  Application.Title := 'Планета велосипедов';
+  GameBg.Picture.LoadFromFile('resources/screens_and_bg/device_test_bg.png');
+  LevelOneButton.Picture.LoadFromFile('resources/buttons/game_button_lvl1.png');
+  LevelTwoButton.Picture.LoadFromFile('resources/buttons/game_button_lvl2.png');
+  LevelThreeButton.Picture.LoadFromFile('resources/buttons/game_button_lvl3.png');
+  LevelFourButton.Picture.LoadFromFile('resources/buttons/game_button_lvl4.png');
+  BackToMainMenu.Picture.LoadFromFile('resources/buttons/return_button.png');
+  BackToMainMenu.AutoSize := True;
+  Time.Font.Name := 'Minecraft Rus Regular';
+  Time.Font.Size := 14;
+  Moves := 0;
+  Time.Visible := False;
+  MoveCounter.Font.Name := 'Minecraft Rus Regular';
+  MoveCounter.Font.Size := 14;
+  MoveCounter.Caption := 'Количество ходов';
+  Title.Font.Name := 'Minecraft Rus Regular';
+  Title.Font.Size := 22;
+  Title.Caption := 'Игра "Парные картинки с велосипедами"';
+  MoveCounter.Visible := False;
+  PicturesGame.Position := poDesktopCenter;
+  Timer.Enabled := False;
+  LevelOneButton.AutoSize := True;
+  LevelTwoButton.AutoSize := True;
+  LevelThreeButton.AutoSize := True;
+  LevelFourButton.AutoSize := True;
+  Field.Visible := False;
+  Update.Enabled := False;
+  Update.Interval := 100;
+end;
+
+procedure TPicturesGame.LevelOneButtonClick(Sender: TObject);
+begin
+    LevelOneButton.Visible := False;
+    LevelTwoButton.Visible := False;
+    LevelThreeButton.Visible := False;
+    LevelFourButton.Visible := False;
+    Title.Visible := False;
+    Pictures := TBitmap.Create;
+    // загрузить картинки из файла
+    Pictures.LoadFromFile('resources/game_pictures/Level1.bmp');
+    HK := 256; // высота картинки
+    WK := 256; // ширина картинки
+    // установить размера поля
+    H := 2;
+    W := 2;
+    Field.Visible := True;
+    Field.Height := H* HK;
+    Field.Width := W * WK;
+    MoveCounter.Caption := 'Количество ходов';
+    i := 30;
+    Field.Top := 200;
+    Field.Left := 700;
+    BackToMainMenu.Left := 700;
+    SetLevel := 'One';
+    Timer.Enabled := True;
+    Time.Visible := True;
+    MoveCounter.Visible := True;
+    n := 0;
+    NewGame;
+end;
+
+procedure TPicturesGame.LevelTwoButtonClick(Sender: TObject);
+begin
+  if Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger < 200 then
+    begin
+      ShowMessage('Для прхождения этого уровня Вы должны пройти предыдущий!');
+      exit;
+    end;
+    LevelOneButton.Visible := False;
+    LevelTwoButton.Visible := False;
+    LevelThreeButton.Visible := False;
+    LevelFourButton.Visible := False;
+    Title.Visible := False;
+    Pictures := TBitmap.Create;
+    // загрузить картинки из файла
+    Pictures.LoadFromFile('resources/game_pictures/Level2.bmp');
+    HK := 128; // высота картинки
+    WK := 128; // ширина картинки
+    // установить размера поля
+    H := 4;
+    W := 4;
+    Field.Visible := True;
+    Field.Height := H *HK;
+    Field.Width := W * WK;
+    Field.Left := 700;
+    Field.Top := 200;
+    BackToMainMenu.Left := 700;
+    MoveCounter.Caption := 'Количество ходов';
+    i := 120;
+    SetLevel := 'Two';
+    Timer.Enabled := True;
+    MoveCounter.Visible := True;
+    Time.Visible := True;
+    n := 0;
+    NewGame;
+end;
+
+procedure TPicturesGame.HelpClick(Sender: TObject);
+begin
+ShellExecute(0, PChar('Open'),PChar('VeloLandHelp.chm'),nil,nil,SW_SHOW);
+end;
+
+procedure TPicturesGame.AboutProgrClick(Sender: TObject);
+begin
+AProgramm.ShowModal;
+end;
+
+procedure TPicturesGame.LevelThreeButtonClick(Sender: TObject);
+begin
+if Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger < 600 then
+    begin
+      ShowMessage('Для прхождения этого уровня Вы должны пройти предыдущий!');
+      exit;
+    end;
+    LevelOneButton.Visible := False;
+    LevelTwoButton.Visible := False;
+    LevelThreeButton.Visible := False;
+    LevelFourButton.Visible := False;
+    Title.Visible :=False;
+    Pictures := TBitmap.Create;
+    // загрузить картинки из файла
+    Pictures.LoadFromFile('resources/game_pictures/Level3.bmp');
+    HK := 128; // высота картинки
+    WK := 128; // ширина картинки
+    H := 6;
+    W := 6;
+    // установить размера поля
+    Field.Visible := True;
+    Field.Height := H *HK;
+    Field.Width := W * WK;
+    Field.Left := 600;
+    Field.Top := 2;
+    BackToMainMenu.Left := 700;
+    i := 180;
+    SetLevel := 'Three';
+    Timer.Enabled := True;
+    MoveCounter.Caption := 'Количество ходов';
+    Time.Visible := True;
+    MoveCounter.Visible := True;
+    n := 0;
+    NewGame;
+end;
+
+procedure TPicturesGame.LevelFourButtonClick(Sender: TObject);
+begin
+if Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger < 1200 then
+    begin
+      ShowMessage('Для прхождения этого уровня Вы должны пройти предыдущий!');
+      exit;
+    end;
+    LevelOneButton.Visible := False;
+    LevelTwoButton.Visible := False;
+    LevelThreeButton.Visible := False;
+    LevelFourButton.Visible := False;
+    Title.Visible := False;
+    Pictures := TBitmap.Create;
+    // загрузить картинки из файла
+    Pictures.LoadFromFile('resources/game_pictures/Level4.bmp');
+    HK := 128; // высота картинки
+    WK := 128; // ширина картинки
+    H := 8;
+    W := 8;
+    // установить размера поля
+    Field.Visible := True;
+    Field.Height := H *HK;
+    Field.Width := W * WK;
+    Field.Left := 500;
+    Field.Top := 0;
+    BackToMainMenu.Left := 0;
+    i := 300;
+    SetLevel := 'Four';
+    MoveCounter.Caption := 'Количество ходов';
+    Timer.Enabled := True;
+    Time.Visible := True;
+    MoveCounter.Visible := True;
+    n := 0;
+    NewGame;
+end;
+
+procedure TPicturesGame.BackToMainMenuClick(Sender: TObject);
+begin
+PicturesGame.Close;
+MainForm.Show;
+end;
+
+procedure TPicturesGame.FieldMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  col_: integer;   // номер клетки по горизонтали
+  row_: integer;   //номер клетки по вертикали
+begin
+  col_ := Trunc(X/WK) + 1;
+  row_ := Trunc(Y/HK) + 1;
+
+
+  if Pole[col_,row_] > 200 then
+     // щелчок в на месте одной из двух
+     // уже найденных парных картинок
+  exit;
+
+  // открытых клеток нет
+  if count = 0 then
+  begin
+    count := 1;
+    open1.col := col_;
+    open1.row := row_;
+
+    // клетка помечается как открытая
+    Pole[open1.col,open1.row] := Pole[open1.col,open1.row] + 100;
+    Kletka(open1.col,open1.row);
+    exit;
+  end;
+
+  // открыта одна клетка, надо открыть вторую
+  if count = 1 then begin
+    open2.col := col_;
+    open2.row := row_;
+
+    // если открыта одна клетка и щелчок сделан
+    // в этой клетке, то ничего не происходит
+    if (open1.col = open2.col) and (open1.row = open2.row)
+       then exit
+
+    else begin
+      count := 2; // теперь открыты две клетки
+      Moves := Moves + 1;
+      MoveCounter.Caption := 'Количество ходов: ' + IntToStr(Moves);
+      Pole[open2.col,open2.row] :=
+           Pole[open2.col,open2.row] + 100;
+      Kletka(open2.col,open2.row); // отрисуем вторую клетку
+
+      // проверим, открытые картинки одинаковые?
+      if Pole[open1.col,open1.row] = Pole[open2.col,open2.row] then
+        // открыты две одинаковые картинки
+        begin
+          n := n+1;
+          Update.Enabled := True; // запустить таймер
+          // процедура обработки события OnTimer
+          // "сотрет" две одинаковые картинки
+        end;
+    end;
+    exit;
+  end;
+
+  if count = 2 then
+  begin
+    // открыты 2 клетки с разными картинками
+    // закроем их и откроем новую, в которой
+    // сделан щелчок
+
+    // закрыть открытые клетки
+    Pole[open1.col,open1.row] := Pole[open1.col,open1.row] - 100;
+    Pole[open2.col,open2.row] := Pole[open2.col,open2.row] - 100;
+    Kletka(open1.col,open1.row);
+    Kletka(open2.col,open2.row);
+
+    // запись в open1 номера текущей клетки
+    open1.col := col_;
+    open1.row := row_;
+    count := 1;   // счетчик открытых клеток
+
+    // открыть текущую клетки
+    Pole[open1.col,open1.row] := Pole[open1.col,open1.row] + 100;
+    Kletka(open1.col,open1.row);
+  end;
+end;
+
+procedure TPicturesGame.FieldPaint(Sender: TObject);
+begin
+ShowPole;
+end;
+
+
+// обработка события таймера
+procedure TPicturesGame.UpdateTimer(Sender: TObject);
+begin
+  // в массиве Pole клетки помечаются как совпавшие
+  Pole[open1.col,open1.row] := Pole[open1.col,open1.row] + 100;
+  Pole[open2.col,open2.row] := Pole[open2.col,open2.row] + 100;
+  count := 0;
+
+  // отрисовать клетки
+  Kletka(open2.col,open2.row);
+  Kletka(open1.col,open1.row);
+
+  // остановка таймера
+  Update.Enabled := False;
+
+  if n = Trunc(W*H/2)
+  then // открыты все пары
+  begin
+    Field.Visible := False;
+    LevelOneButton.Visible := True;
+    LevelTwoButton.Visible := True;
+    LevelThreeButton.Visible := True;
+    LevelFourButton.Visible := True;
+    Title.Visible := True;
+    Timer.Enabled := False;
+    MoveCounter.Visible := False;
+    Time.Visible := False;
+    Reg.VeloLandUsers.Edit;
+    if (SetLevel = 'One') and (Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger < 200) then
+        Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger := 200
+    else if (SetLevel = 'Two') and (Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger < 600) then
+         Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger := 600
+    else if (SetLevel = 'Three') and (Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger < 1200) then
+         Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger := 1200
+    else
+         Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger := 2000;
+    Reg.VeloLandUsers.Post;
+    SetLevel := '';
+    MoveCounter.Caption := 'Количество ходов';
+    ShowMessage('Вы успешно прошли уровень! Поздравляем!');
+    Moves := 0;
+  end;
+end;
+
+procedure TPicturesGame.TimerTimer(Sender: TObject);
+var H,M,S:integer;
+begin
+i := i - 1;
+H := I div 3600;
+M := (I mod 3600) div 60;
+S := (I mod 3600) mod 60;
+Time.Caption := 'Оставшееся время:' + Format('%.2d:',[H]) + Format('%.2d:',[M]) + Format('%.2d',[S]);
+if i = 0 then
+begin
+LevelOneButton.Visible := True;
+LevelTwoButton.Visible := True;
+LevelThreeButton.Visible := True;
+LevelFourButton.Visible := True;
+Timer.Enabled := False;
+Time.Visible := False;
+Field.Visible := False;
+Title.Visible := True;
+Moves := 0;
+MoveCounter.Visible := False;
+MoveCounter.Caption := 'Количество ходов';
+SetLevel := '';
+ShowMessage('Время вышло! Попробуйте ещё раз!');
+end;
+end;
+
+procedure TPicturesGame.TitleColorTimer(Sender: TObject);
+begin
+Title.Font.Color := rgb(random(255),random(255), random(255));
+end;
+
+end.

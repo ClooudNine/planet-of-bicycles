@@ -1,0 +1,25 @@
+unit BicyclesTypes;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.OleCtrls, SHDocVw;
+
+type
+  TTypes = class(TForm)
+    Page2: TWebBrowser;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Types: TTypes;
+
+implementation
+
+{$R *.dfm}
+
+end.

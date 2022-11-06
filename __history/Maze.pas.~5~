@@ -1,0 +1,97 @@
+unit Maze;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls;
+
+type
+  TForm3 = class(TForm)
+    BackBuffer: TImage;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+  type Location=record
+    left_wall,up_wall:Boolean;
+    end;
+  type MazeBike=array of array of Location;
+
+var
+  Form3: TForm3;
+  Laberint:MazeBike;
+  CellSize:Byte=15;
+implementation
+
+{$R *.dfm}
+
+procedure LoadMaze(var TheMaze : MazeBike; Name : string);  //загрузить лабиринт
+var
+  Height, Width:Integer;//высота и ширина лабиринта
+  x,y:Integer;//текущая локация
+  lw,uw:Integer; //временные переменные
+begin
+  Width := 25;
+  Height := 25;
+  SetLength(TheMaze,Width+1,Height+1);//изменить размер лабиринта
+for y:=0 to Height do //цикл по всем локациям
+    for x:=0 to Width do
+    if (y=Height)or(x=Width) then //если локация-служебная
+    begin
+      TheMaze[x,y].left_wall := true;   //обе стены существуют
+      TheMaze[x, y].up_wall := true;
+	  end
+end;
+
+procedure ShowMaze(TheMaze : MazeBike); { нарисовать лабиринт }
+
+    var x, y : Integer;
+      Height, Width : Integer; { высота и ширина лабиринта }
+  begin
+    Width := High(TheMaze); { определить высоту и ширину }
+    Height := High(TheMaze[0]);
+
+Form3.BackBuffer.Width:=(Width+1)*CellSize;
+Form3.BackBuffer.Height:=(Height+1)*CellSize;
+
+Form3.BackBuffer.Picture.Bitmap.Width:=Form3.BackBuffer.Width;
+Form3.BackBuffer.Picture.Bitmap.Height:=Form3.BackBuffer.Height;
+
+with Form3.BackBuffer.Canvas do
+begin { очистка буфера }
+FillRect(Rect(0, 0, Form3.BackBuffer.Width, Form3.BackBuffer.Height));
+for x := 0 to Width - 1 do
+for y := 0 to Height - 1 do
+begin
+{ если в локации есть верхняя стена }
+if TheMaze[x, y].up_wall then
+begin
+MoveTo(x * CellSize, y * CellSize); { рисуем ее }
+LineTo((x + 1) * CellSize, y * CellSize);
+end;
+
+{ если в локации есть левая стена }
+
+if (x<>0) or ((x=0) and (y<>0))  then
+if TheMaze[x, y].left_wall then
+begin
+MoveTo(x * CellSize, y * CellSize); { рисуем и ее }
+LineTo(x * CellSize, (y + 1) * CellSize);
+end;
+end;
+MoveTo(0, Height * CellSize); { рисуем стену снизу и }
+
+LineTo(Width * CellSize, (Height) * CellSize); { справа от лабиринта }
+MoveTo(Width * CellSize,  (Height-1) * CellSize);
+LineTo(Width * CellSize, 0);
+
+  { отобразить результат на основном экране }
+
+{Form3.Screen.Canvas.CopyRect(Rect(0, 0, Form3.Screen.Width,
+Form3.Screen.Height), Form3.Image2.Canvas,
+Rect(0, 0, Form3.Screen.Width, Form3.Screen.Height));}
+end;
+end;
+end.

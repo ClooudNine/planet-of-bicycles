@@ -1,0 +1,38 @@
+unit LoadScreen;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Imaging.GIFImg;
+
+type
+  TLoadScreen = class(TForm)
+    LoadTimer: TTimer;
+    LoadImage: TImage;
+    procedure LoadTimerTimer(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  LoadScreen: TLoadScreen;
+
+implementation
+
+{$R *.dfm}
+
+procedure TLoadScreen.FormActivate(Sender: TObject);
+begin
+(LoadImage.Picture.Graphic as TGIFImage).Animate := True;
+end;
+
+procedure TLoadScreen.LoadTimerTimer(Sender: TObject);
+begin
+LoadTimer.Enabled := False;
+end;
+
+end.

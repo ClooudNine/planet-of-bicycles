@@ -1,0 +1,265 @@
+@font-face {
+    font-family: "Minecraft Font";
+    src: url("minecraft.ttf");
+}
+
+body {
+    background-image: url("bg_types.jpg");
+}
+
+#title {
+    text-align: center;
+    font-family: "Minecraft Font";
+    font-size: 48px;
+    animation: title 10s infinite;
+}
+
+#introduction {
+    text-align: center;
+    font-family: 'Minecraft Font';
+    font-size: 24px;
+    font-style: italic;
+    color: #00ffff;
+}
+
+#type {
+    position: relative;
+}
+
+#closeform {
+    background-image: url('return_button.png');
+    background-color: Transparent;
+    background-repeat:no-repeat;
+    border: none;
+    cursor:pointer;
+    overflow: hidden;
+    position: absolute;
+    top: 85%;
+    left: 35%;
+    width: 500px;
+    height: 144px;
+}
+
+#closeformtext {
+    font-family: 'Minecraft Font';
+    font-size: 36px;
+    position: absolute;
+    top: 1%;
+    bottom: 5%;
+    right: 32%;
+}
+
+.nested {
+    position: absolute;
+    visibility: hidden;
+    left: 7%;
+}
+
+#vnedoroj:target {
+    visibility: visible;
+}
+
+#sport:target {
+    visibility: visible;
+}
+
+#asphalt:target {
+    visibility: visible;
+}
+
+#other:target {
+    visibility: visible;
+}
+
+.images {
+    vertical-align: middle;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+}
+
+.modal:target {
+    opacity: 1; 
+	pointer-events: auto; 
+    overflow-y: auto; 
+}
+
+.modal-dialog {
+    position: relative;
+    width: 80%;
+    margin: 10px;
+}
+
+@media (min-width: 576px) {
+  .modal-dialog {
+      margin: 30px auto;
+  }
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: .3rem;
+    outline: 0;
+}
+
+@media (min-width: 768px) {
+  .modal-content {
+      box-shadow: 0 5px 15px rgba(0,0,0,.5);
+  }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid #eceeef;
+}
+.modal-title {
+    font-family: 'Minecraft Font';
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-size: 48px;
+    font-weight: 500;
+}
+
+.close {
+    float: right;
+    font-family: sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    text-decoration: none;
+}
+
+.close:focus, .close:hover {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+    opacity: .75;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 15px;
+    overflow: auto;
+    text-align: center;
+}
+
+.stylistics_knopkam {
+    width: 500px;
+    font-family: 'Minecraft Font';
+    font-size: 32px;
+    color: #fff;
+    cursor: pointer;
+    margin: 18px;
+    height: 100px;
+    text-align:center;
+    border: none;
+    background-size: 300% 100%;
+    text-shadow: 0 1px 0 #312c2c;
+    border-radius: 50px;
+    transition: all .4s ease-in-out;
+    background-image: linear-gradient(to right, #ecc24d, #e44010, #f3628c, #e45311);
+    box-shadow: 0 4px 15px 0 rgba(224, 79, 29, 0.75);
+  }
+
+.gradient_knopka {
+    background-color: #da4f6e;
+    background-image: linear-gradient(60deg, #e85475 10%, #d48444 50%, #efcb0a 100%);
+    color: #f7f4f4;
+    border-radius: 50px;
+    padding: 12px 48px;
+    border: solid rgba(45, 45, 45, 0.90);
+    box-shadow: 0px 0px 9px 2px rgba(195, 195, 195, 0.35);
+    transition: all 0.5s ease;
+    font-family: 'Minecraft Font';
+    font-size: 40px;
+    font-weight: bold;
+    width: 24.5%;
+  }
+  
+  .gradient_knopka:hover{
+    box-shadow: 0 0px 0px 0 rgba(0, 40, 120, 0);
+    transform: scale(0.930);
+  }
+  
+  .gradient2 {
+    border: solid rgba(255, 255, 255, 0.50);
+    background-image: linear-gradient(60deg, #2370b9 10%, #6cd7f5 50%, #6136c7 100%);
+  }
+
+
+ .texts{
+    font-family: Arial;
+    font-size: 28px;
+ }
+@keyframes title {
+    0% {
+        color: #ff0000;
+    }
+
+    10% {
+        color: #ff8000;
+    }
+
+    20% {
+        color: #ffff00;
+    }
+
+    30% {
+        color: #80ff00;
+    }
+
+    40% {
+        color: #00ff00;
+    }
+
+    50% {
+        color: #00ff80;
+    }
+
+    60% {
+        color: #00ffff;
+    }
+
+    70% {
+        color: #0080ff;
+    }
+
+    80% {
+        color: #0000ff;
+    }
+
+    90% {
+        color: #8000ff;
+    }
+
+    100% {
+        color: #ff0080;
+    }
+}

@@ -1,0 +1,70 @@
+unit DeviceTest;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Data.DB,
+  Data.Win.ADODB, Vcl.Mask, Vcl.DBCtrls;
+
+type
+  TDeviceT = class(TForm)
+    DeviceTBg: TImage;
+    Title: TLabel;
+    NameLabel: TLabel;
+    SurnameLabel: TLabel;
+    ADOConnection1: TADOConnection;
+    NextButton: TImage;
+    StartLabel: TLabel;
+    ADOQuery1: TADOQuery;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    procedure FormCreate(Sender: TObject);
+    procedure NextButtonClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  DeviceT: TDeviceT;
+
+implementation
+
+{$R *.dfm}
+
+procedure TDeviceT.FormCreate(Sender: TObject);
+begin
+DeviceT.Position := poDesktopCenter;
+DeviceTBg.Picture.LoadFromFile('resources/tests/device_test_bg.png');
+DeviceTBg.AutoSize := True;
+Title.Caption := 'Для начала введите своё имя и фамилию!';
+Title.Font.Name := 'Minecraft Rus Regular';
+Title.Font.Size := 28;
+NameLabel.Caption := 'Имя';
+NameLabel.Font.Name := 'Minecraft Rus Regular';
+NameLabel.Font.Size := 16;
+SurnameLabel.Caption := 'Фамилия';
+SurnameLabel.Font.Name := 'Minecraft Rus Regular';
+SurnameLabel.Font.Size := 16;
+NextButton.Picture.LoadFromFile('resources\tests\next_button.png');
+StartLabel.Caption := 'Старт!';
+StartLabel.Font.Name := 'Minecraft Rus Regular';
+StartLabel.Font.Color := clLime;
+StartLabel.Font.Size := 23;
+end;
+
+procedure TDeviceT.NextButtonClick(Sender: TObject);
+begin
+ ADOQuery1.SQL.Clear;
+ ADOQuery1.SQL.Add('INSERT INTO [Users] ([UserName], [UserSurname])');
+ ADOQuery1.SQL.Add('VALUES ( :Param1, :Param2)');
+ ADOQuery1.Parameters.Refresh;
+ ADOQuery1.Parameters[0].Value:=Edit1.Text;
+ ADOQuery1.Parameters[1].Value:=Edit2.Text;
+ ADOQuery1.ExecSQL;
+ ADOQuery1.Requery();
+end;
+
+end.

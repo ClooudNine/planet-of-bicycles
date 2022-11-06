@@ -1,0 +1,284 @@
+unit Tests; // модуль раздела "Тесты"
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
+  System.ImageList, Vcl.ImgList, Vcl.Menus, ShellAPI;
+
+type
+  TTest = class(TForm)
+    DeviceTBg: TImage;
+    TestsVariant: TRadioGroup;
+    NextButton: TImage;
+    Questions: TRadioGroup;
+    Score: TLabel;
+    PictureDevice: TImage;
+    OnMainForm: TImage;
+    Timer: TTimer;
+    Time: TLabel;
+    MainMenuTest: TMainMenu;
+    N1: TMenuItem;
+    Help: TMenuItem;
+    AboutProgr: TMenuItem;
+    procedure FormCreate(Sender: TObject);
+    procedure TestsVariantClick(Sender: TObject);
+    procedure NextButtonClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure OnMainFormClick(Sender: TObject);
+    procedure TimerTimer(Sender: TObject);
+    procedure HelpClick(Sender: TObject);
+    procedure AboutProgrClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Test: TTest;
+  f: text;
+  s: string;
+  Nvern, ball: integer;
+  img_index:integer;
+  i:integer;
+
+implementation
+
+{$R *.dfm}
+
+uses RegistrationForm, Main, AboutProgram;
+
+procedure TTest.FormClose(Sender: TObject; var Action: TCloseAction); // запись прогресса в БД при выходе из формы
+begin
+Reg.VeloLandUsers.Edit;
+Reg.VeloLandUsers.FieldByName('UserScore').AsInteger := Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger
++ Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger
++ Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger
++ Reg.VeloLandUsers.FieldByName('UserGameScore').AsInteger;
+Reg.VeloLandUsers.Post;
+TestsVariant.ItemIndex := -1;
+TestsVariant.Enabled := True;
+Timer.Enabled := False;
+Time.Visible := False;
+Questions.Items.Clear;
+Questions.Caption := 'Вопросы';
+Questions.Visible := False;
+PictureDevice.Visible := False;
+MainForm.Show;
+end;
+
+procedure TTest.FormCreate(Sender: TObject); // базовое расположение элементов управления
+begin
+Application.Title := 'Планета велосипедов';
+Test.Position := poDesktopCenter;
+DeviceTBg.Picture.LoadFromFile('resources\screens_and_bg\device_test_bg.png');
+NextButton.Picture.LoadFromFile('resources\buttons\authcomplete.png');
+OnMainForm.Picture.LoadFromFile('resources\buttons\return_button.png');
+OnMainForm.AutoSize := True;
+NextButton.AutoSize := True;
+NextButton.Enabled := False;
+DeviceTBg.AutoSize := True;
+Timer.Enabled := False;
+TestsVariant.Font.Name := 'Minecraft Rus Regular';
+Score.Font.Name := 'Minecraft Rus Regular';
+Questions.Font.Name := 'Minecraft Rus Regular';
+Questions.Font.Size := 16;
+Score.Font.Size := 32;
+Time.Font.Name := 'Minecraft Rus Regular';
+Time.Font.Size := 16;
+Time.Visible := False;
+Score.Font.Color := clBlack;
+Score.Visible := False;
+Questions.Visible := False;
+TestsVariant.Font.Size := 12;
+end;
+
+procedure TTest.HelpClick(Sender: TObject); // вызов справки
+begin
+ShellExecute(0, PChar('Open'),PChar('VeloLandHelp.chm'),nil,nil,SW_SHOW);
+end;
+
+procedure TTest.AboutProgrClick(Sender: TObject); // вызов окна "О программе"
+begin
+AProgramm.ShowModal;
+end;
+
+procedure TTest.NextButtonClick(Sender: TObject); // переход к следующему вопросу
+begin
+if (Questions.ItemIndex>-1) and (not Eof(f)) then begin
+if Questions.ItemIndex = Nvern-1 then ball:=ball+100; //Если выбранный вариант соответствует
+Questions.Items.Clear; //номеру верного ответа то балл прибавляется
+Repeat //и очищается поле для следующего вопроса
+if (s[1]='-') then begin
+delete(s,1,1);
+Questions.Caption:=s;
+end
+else if s[1]='*' then begin
+delete(s,1,1);
+Nvern:=StrToInt(s);
+end
+else Questions.Items.Add(s);
+readln(f,s);
+Score.Caption:=s;
+until (s[1]='-') or (Eof(f));
+if TestsVariant.ItemIndex = 0 then
+  begin
+    img_index := img_index + 1;
+    PictureDevice.Picture.LoadFromFile('resources\tests\device_test\' + IntToStr(img_index) + '.jpg') // загрузка картинок для впоросов
+  end
+else if TestsVariant.ItemIndex = 2 then
+  begin
+    img_index := img_index + 1;
+    PictureDevice.Picture.LoadFromFile('resources\tests\types_test\' + IntToStr(img_index) + '.jpg') // загрузка картинок для вопросов
+  end;
+end
+//Если конец файла достигнут, значит вопросы закончились
+Else if Eof(f) then begin
+delete(s,1,1);
+Nvern:=StrToInt(s);
+if Questions.ItemIndex = Nvern-1 then ball:=ball+100;
+Score.Visible := True;
+Score.Caption:='Итоговый счёт: ' +IntToStr(ball); //Вывод количества баллов
+Reg.VeloLandUsers.Edit;
+if TestsVariant.ItemIndex = 0 then
+  if ball > Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger then // проверка был ли пройден ранее тест
+    Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger := ball;
+if TestsVariant.ItemIndex = 1 then
+  if ball > Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger then
+    Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger := ball;
+if TestsVariant.ItemIndex = 2 then
+  if ball > Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger then
+    Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger := ball;
+Reg.VeloLandUsers.Post;
+CloseFile(f);
+NextButton.Enabled:=False; //кнопка становится недоступной в завершении проекта
+TestsVariant.Enabled := True;
+TestsVariant.ItemIndex := -1;
+Questions.Items.Clear;
+Timer.Enabled := False;
+end;
+end;
+
+procedure TTest.OnMainFormClick(Sender: TObject);
+begin
+Test.Close;
+end;
+
+procedure TTest.TestsVariantClick(Sender: TObject);
+begin
+case TestsVariant.ItemIndex of //В зависимости от выбранного варианта переменная f
+0: begin
+    AssignFile( f ,'resources\tests\device_test\device_test.txt');//связывается с разными файлами
+    img_index := 1;
+    Questions.Font.Size := 16;
+    Questions.Width := 700;
+    PictureDevice.Left := 800;
+    PictureDevice.Width := 545;
+    PictureDevice.Height := 400;
+    PictureDevice.Picture.LoadFromFile('resources\tests\device_test\' + IntToStr(img_index) + '.jpg');
+    end;
+1: begin
+    if Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger + Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger // проверка наличия нужного количества очков
+    + Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger < 700 then
+    begin
+        TestsVariant.ItemIndex := -1;
+        ShowMessage('Наберите минимум 700 очков для прохождения этого теста!');
+        exit;
+    end
+    else
+      begin
+      AssignFile( f ,'resources\tests\pdd_test\pdd_test.txt');
+      Questions.Font.Size := 12;
+      Questions.Width := 1000;
+      PictureDevice.Left := 1100;
+      PictureDevice.Width := 350;
+      PictureDevice.Height := 450;
+      PictureDevice.Picture.LoadFromFile('resources\tests\pdd_test\traffic.png');
+      end;
+   end;
+2: begin
+    if Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger + Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger
+    + Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger < 1400 then
+      begin
+        TestsVariant.ItemIndex := -1;
+        ShowMessage('Наберите минимум 1400 очков для прохождения этого теста!');
+        exit;
+      end
+      else
+      begin
+      AssignFile( f ,'resources\tests\types_test\types_test.txt');
+      img_index := 1;
+      Questions.Font.Size := 14;
+      Questions.Width := 700;
+      PictureDevice.Left := 800;
+      PictureDevice.Width := 700;
+      PictureDevice.Height := 400;
+      PictureDevice.Picture.LoadFromFile('resources\tests\types_test\' + IntToStr(img_index) + '.jpg');
+      end;
+    end;
+end;
+TestsVariant.Enabled:=false; //Выбор варианта становится недоступен
+Questions.Enabled:=true; //Доступным становится поле с вопросом
+NextButton.Enabled:=true; //Кнопка Далее
+Score.Visible := False;
+Questions.Visible := True;
+PictureDevice.Visible := True;
+i := 300;
+Timer.Enabled := True;
+Time.Visible := True;
+reset(f); //Открываем файл для чтения
+readln(f,s); //Считываем первую строку из файла
+ball:=0; //изначально количество баллов 0
+repeat
+if (s[1]='-') then begin //Если первый символ строки ‘-‘ значит это вопрос
+delete(s,1,1);
+Questions.Caption:=s;
+end
+else if s[1]='*' then begin //Если перв символ ‘*’ значит это номер верного ответа
+delete(s,1,1);
+Nvern:=StrToInt(s);
+end
+
+else Questions.Items.Add(s); //Иначе это вариант ответа
+readln(f,s); //Считываем следующую строку из файла
+until (s[1]='-') or (Eof(f)); //Считывание и отправление вариантов ответов в RadiGroup до тех пор
+// пока не достигнут следующий вопрос или конец файла
+end;
+
+procedure TTest.TimerTimer(Sender: TObject); // таймер ограничения времени
+var H,M,S:integer;
+begin
+i := i - 1;
+H := I div 3600;
+M := (I mod 3600) div 60;
+S := (I mod 3600) mod 60;
+Time.Caption := 'Оставшееся время:' + Format('%.2d:',[H]) + Format('%.2d:',[M]) + Format('%.2d',[S]);
+if i = 0 then // если время вышло, то начисляются очки, которые успел заработать пользователь
+begin
+  Timer.Enabled := False;
+  Questions.Enabled := False;
+  NextButton.Enabled := False;
+  TestsVariant.Enabled := True;
+  Time.Visible := False;
+  Reg.VeloLandUsers.Edit;
+  if TestsVariant.ItemIndex = 0 then
+    if ball > Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger then
+      Reg.VeloLandUsers.FieldByName('UserDeviceTestScore').AsInteger := ball;
+  if TestsVariant.ItemIndex = 1 then
+   if ball > Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger then
+      Reg.VeloLandUsers.FieldByName('UserPDDTestScore').AsInteger := ball;
+  if TestsVariant.ItemIndex = 2 then
+    if ball > Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger then
+      Reg.VeloLandUsers.FieldByName('UserTypesTestScore').AsInteger := ball;
+  Reg.VeloLandUsers.Post;
+  TestsVariant.ItemIndex := -1;
+  Questions.Visible := False;
+  PictureDevice.Visible := False;
+  Questions.Items.Clear;
+  ShowMessage('Время вышло! Вам начислено ' + IntToStr(ball) + ' очков!');
+end;
+end;
+
+end.

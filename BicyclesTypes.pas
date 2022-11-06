@@ -1,0 +1,39 @@
+unit BicyclesTypes; // модуль раздела "¬иды велосипедов"
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.OleCtrls, SHDocVw;
+
+type
+  TTypes = class(TForm)
+    Page2: TWebBrowser;
+    procedure FormActivate(Sender: TObject);
+    procedure Page2BeforeScriptExecute(ASender: TObject;
+      const pDispWindow: IDispatch);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Types: TTypes;
+
+implementation
+
+{$R *.dfm}
+
+procedure TTypes.FormActivate(Sender: TObject); // открытие HTML-страницы с разделом "¬иды велосипедов"
+begin
+Page2.Navigate('file://' + ExtractFilePath(paramstr(0)) +'resources/html_pages/types_of_bicycles/types.html');
+end;
+
+procedure TTypes.Page2BeforeScriptExecute(ASender: TObject;
+  const pDispWindow: IDispatch); // закрытие формы
+begin
+Types.Close;
+end;
+
+end.
